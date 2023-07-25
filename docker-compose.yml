@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+
+  # ===========================
+  # |   Excalidraw            |
+  # ===========================
+  excalidraw:
+    # ---- Build instructions ----
+    container_name: excalidraw
+    image: excalidraw/excalidraw:latest
+    shm_size: 256m
+
+    # ---- Container information ----
+    tty: true
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=webgateway-traefik
+      - traefik.http.routers.excalidraw-router.rule=Host(`excalidraw.alexis-vannot.com`)
+      - traefik.http.routers.excalidraw-router.entrypoints=websecure
+      - traefik.http.routers.excalidraw-router.tls=true
+      - traefik.http.routers.excalidraw-router.tls.certresolver=letsencrypt
+      - traefik.http.routers.excalidraw-router.service=excalidraw-service
+      - traefik.http.services.excalidraw-service.loadbalancer.server.port=80
+    volumes:
+      # Container configuration
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      # Excalidraw data
+      # - 
+    networks:
+      - webgateway-traefik
+
+# ========================
+# |  Networks            |
+# ========================
+networks:
+  webgateway-traefik:
+    external: true
